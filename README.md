@@ -5,7 +5,6 @@
 <li><a href="#orgheadline1">1. Introduction</a></li>
 <li><a href="#orgheadline2">2. Requirements</a></li>
 <li><a href="#orgheadline3">3. Usage</a></li>
-<li><a href="#orgheadline4">4. Source Code</a></li>
 </ul>
 </div>
 </div>
@@ -16,6 +15,10 @@ This is an org-babel file for epython. Org-babel files can be turned
 into elisp files via something like
 
 `(org-babel-tangle-file "epython.org" "epython.el" "emacs-lisp")`
+
+or markdown files (e.g., for github README.md files) via
+
+`M-x org-md-export-to-markdown`
 
 to produce `epython.el`. One nice feature of writing elisp using
 org-babel is that it makes documentation and commentary a little
