@@ -1,15 +1,102 @@
+
+* Introduction
+
+The epython package provides the [[https://github.com/emin63/epython/blob/master/epython.org][epython.org]] file to help in setting
+up some utilities for running python inside emacs. Org-babel files can
+be turned into elisp files via something like
+
+  =(org-babel-tangle-file "epython.org" "epython.el" "emacs-lisp")=
+
+(which yields =epython.el=) or loaded directly via something
+like =(org-babel-load-file "epython.org")=. Org files can also be
+exported to or markdown files (e.g., for github =README.md= files) via 
+
+  =M-x org-md-export-to-markdown=
+
+(which yields =epython.md=).
+
+One nice feature of writing elisp using org-babel is that it makes
+documentation and commentary a little easier. If you are going to
+contribute to epython, please edit the main epython.org file and not
+generated files like =README.md=.
+
+* Requirements
+
+You will need to install things like flymake and pyempt for this to
+work properly.
+
+* Usage
+
+The main way to use =epython.org= is to place the =epython.org=
+somewhere and call =(org-babel-load-file "/path/to/epython.org")= in
+your emacs initialization files.
+
+This as an old file and some more documentation is needed but it is
+provided in the hope that it is still useful as is. Some useful
+features of epython include:
+
+  1. Typing =C-.= will push a doctest line from your python buffer
+     into the the python interpreter. The easiest way to see this is
+     to do the following:
+     1. Open a python file.
+     2. Type =C-x 1= to have only a single window open.
+     3. Type =C-c != to open a python interpreter in the other window.
+     4. Put the point on a doctest line that starts with ">>>".
+     5. Type =C-.=
+     6. Your doctest line should get pushed into the python buffer. By
+        repeating this, you can conveniently step through a doctest.
+  2. Typing =C-c c= when the point is at the start of a function
+     definition will auto-generate a comment string for that function.
+  3. Typing =C-c y= when in a python interpreter will start the pdb
+     debugger in post-mortem mode to debug the most recent exception.
+  4. Typing =C-c e= in the python buffer with the point on the start
+     of a doctest failure will generate an ediff showing the doctest
+     mismatch.
+  5. When flymake is running, using =C-c j= and =C-c k= will go to the
+     previous/next flymake failure while =C-c l= will display what
+     flymake finds objectionable on the current line.
+  6. Typing =C-c p= will push the current buffer to python. This is
+     useful to evaluate the buffer if it is set to run doctests with
+     a line like
+
+#+BEGIN_EXAMPLE
+    ```
+    if __name__ == '__main__':
+        doctest.testmod()
+    ```
+#+END_EXAMPLE
+
+* Other tips and tricks
+
+You may also find =company-mode= and =company-jedi= useful for
+auto-completion. Those are not python specific so they are not
+explicitly included here but you may wish to install them (e.g., via
+something like =M-x package-list-packages=) and then put something
+like
+
+#+BEGIN_EXAMPLE
+(global-company-mode 't)
+(add-to-list 'company-backends 'company-jedi)
+#+END_EXAMPLE
+
+somewhere in your emacs initialization files.
+
+* Source Code							   :noexport:
+  :PROPERTIES:
+  :ID:       7c2ba8ff-6aa2-4565-afe7-43f02da78991
+  :END:
+
 #+begin_src emacs-lisp  ;;; epython.el --- Provides various extra utilities to python mode.
 
     ;; Keywords:     python languages oop
+    ;; See github site at https://github.com/emin63/epython
 
     (defconst epy-version "1.0"
       "Current version of epython.el.")
 
     ;; This software is provided as-is, without express or implied
-    ;; warranty.  Permission to use, copy, modify, distribute or sell this
-    ;; software, without fee, for any purpose and by any individual or
-    ;; organization, is hereby granted, provided that the above copyright
-    ;; notice and this paragraph appear in all copies.
+    ;; warranty. See LICENSE file at https://github.com/emin63/epython
+    ;; for licensing.
 
     ;;; Commentary:
 
@@ -25,82 +112,10 @@
     ;;
     ;; 2. Autoload this file if desired.
     ;;
-    ;; 3. If you want support for flymake-mode, do the following:
-    ;;
-    ;;    3A. Download and install pylint and its dependencies from logilab.
-    ;;
-    ;;    3B. Save the mypylint.py script below somewhere appropriate. On
-    ;;        windows, you will also need to create a file called mypylint.bat
-    ;;        that run python on mypylint.py. The easist way to do this is make
-    ;;        mypylint.bat contain the line
-    ;;
-    ;;            c:\Python25\python.exe c:\Python25\Scripts\mypylint.py %*
-    ;;
-    ;;        NOTE: you may need to modify c:\Python25\Scripts\pylint.py to
-    ;;              make sure it points to your python implementation.
-    ;;
-    ;;    3C. Make sure the mypylint.bat file is in your path. On Windows, you
-    ;;        can do this by right-clicking on "My Computer", clicking on the
-    ;;        "Advanced" tab, clicking on the "Environment Variables" button,
-    ;;        selecting on the "Path" system variable, clicking edit, and
-    ;;        adding the appropriate directory such as "C:\Python25\Scripts".
-    ;;        Also, on windows you should make sure that the pylint.bat
-    ;;        script installed by pylint is correct (the default one may
-    ;;        have "python" instead of the full python executable path).
-
-    ;;;;;;;;;;;;;;;;;;;;;;  mypylint.py script  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    ;;#!/usr/bin/env python
-    ;;
-    ;;import re
-    ;;import sys
-    ;;
-    ;;from subprocess import *
-    ;;
-    ;;p = Popen(
-    ;;    "c:/Python25/Scripts/pylint.bat --include-ids=y -f parseable -r n %s"%
-    ;;    sys.argv[1], shell = True, stdout = PIPE).stdout
-    ;;
-    ;;for line in p:
-    ;;    match = re.search(
-    ;;        "\\[(?P<kind>[WECRI])(?P<id>[0-9]+)*(, (?P<func>.+?))?\\]", line)
-    ;;    if match:
-    ;;        kind = match.group('kind')
-    ;;        msgID = match.group('id')
-    ;;        func = match.group('func')
-    ;;
-    ;;        if kind in ["W","C","R"]:
-    ;;           msg = "Warning"
-    ;;        elif kind in ["I"]: # information message so don't display it
-    ;;            line = ''
-    ;;            continue
-    ;;        else:
-    ;;           msg = "Error"
-    ;;
-    ;;        msgID = ' (id = %s%s)\n' % (kind,msgID)            
-    ;;        if func:
-    ;;            line = re.sub("\\[([WECR])([0-9]*, (.+?))?\\]",
-    ;;                          "%s (%s):" % (msg, func), line)
-    ;;        else:
-    ;;            line = re.sub("\\[([WECR])?\\]", "%s:" % msg, line)
-    ;;        line = line.rstrip() + msgID 
-    ;;            
-    ;;    else:    # This means we don't know what the line is.
-    ;;        pass # Perhaps we should complain about it?
-    ;;    print line,
-    ;;
-    ;;p.close()
-    ;;
-    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
 
     ;;; Code:
 
     
-    ;; user definable variables
-    ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
-
-    
-    ;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-    ;; NO USER DEFINABLE VARIABLES BEYOND THIS POINT
 
     (require 'python)
 
@@ -195,8 +210,6 @@
         (local-set-key "\C-cp" 'epy-go-py)
         (local-set-key "\C-ci" 'epy-log-info) 
         (local-set-key "\C-cg" 'epy-get-paths)
-        (local-set-key "\C-cd" 'epy-import-db)
-        (local-set-key "\C-cq" 'epy-import-dq)
         ))
 
     (add-hook 'python-mode-hook 'epy-setup-my-epython-style)
@@ -331,18 +344,6 @@
         (insert (format "localBranchPath = '%s'; branchLocation = '%s'"
                         branchPath my-name))))
 
-    (defun epy-import-db ()
-      "Import DBAccess module. Only useful to people working with ARC software"
-      (interactive)
-      (insert "from src.libs.dbaccess.DBAccess import DBAccess;db=DBAccess.DBFor()")
-    )
-
-    (defun epy-import-dq ()
-      "Import DARCQueryable module. Only useful to people working with ARC software"
-      (interactive)
-      (insert "from src.libs.DARC.GetData.DataAccess import DARCQueryable; dq = DARCQueryable.MultiTimeSeriesQuery(db=db,nameList=[],quoteTypeList=[]")
-    )
-
 
     (defun epy-set-go-py-buffer ()
       "Set the current buffer to be the my-main-py-buffer for the epy-go-py command"
@@ -436,20 +437,6 @@
         (other-window -1)
         )
       )
-
-    (when (load "flymake" t)
-      (defun flymake-pylint-init ()
-        (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                           'flymake-create-temp-inplace))
-               (local-file (file-relative-name
-                            temp-file
-                            (file-name-directory buffer-file-name))))
-            (list "c:/cygwin64/home/Emin/software/shell_scripts/pyflymake.py" (list local-file))))
-          ;;(list "epylint.bat" (list local-file))))
-          ;;(list "mypylint.bat" (list local-file))))
-
-      (add-to-list 'flymake-allowed-file-name-masks
-                   '("\\.py\\'" flymake-pylint-init)))
 
     ;; Python stuff for outline mode based on python-magic
 
