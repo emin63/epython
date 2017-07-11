@@ -12,7 +12,7 @@
 
 # Introduction<a id="orgheadline1"></a>
 
-The epython package provides the `epython.org` file to help in setting
+The epython package provides the [epython.org](https://github.com/emin63/epython/blob/master/epython.org) file to help in setting
 up some utilities for running python inside emacs. Org-babel files can
 be turned into elisp files via something like
 
