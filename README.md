@@ -58,6 +58,7 @@ features of epython include:
 6.  Typing `C-c p` will push the current buffer to python. This is
     useful to evaluate the buffer if it is set to run doctests with
     a line like
-
+    ```
     if __name__ == '__main__':
         doctest.testmod()
+    ```
