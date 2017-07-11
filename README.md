@@ -12,13 +12,15 @@
 
 # Introduction<a id="orgheadline1"></a>
 
-This is an org-babel file for epython. Org-babel files can be turned
-into elisp files via something like
+The epython package provides the `epython.org` file to help in setting
+up some utilities for running python inside emacs. Org-babel files can
+be turned into elisp files via something like
 
 `(org-babel-tangle-file "epython.org" "epython.el" "emacs-lisp")`
 
-(which yields `epython.el`), or markdown files (e.g., for github
-README.md files) via 
+(which yields `epython.el`) or loaded directly via something
+like `(org-babel-load-file "epython.org")`. Org files can also be
+exported to or markdown files (e.g., for github `README.md` files) via 
 
 `M-x org-md-export-to-markdown`
 
@@ -35,6 +37,10 @@ You will need to install things like flymake and pyempt for this to
 work properly.
 
 # Usage<a id="orgheadline3"></a>
+
+The main way to use `epython.org` is to place the `epython.org`
+somewhere and call `(org-babel-load-file "/path/to/epython.org")` in
+your emacs initialization files.
 
 This as an old file and some more documentation is needed but it is
 provided in the hope that it is still useful as is. Some useful
