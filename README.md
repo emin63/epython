@@ -5,6 +5,7 @@
 <li><a href="#orgheadline1">1. Introduction</a></li>
 <li><a href="#orgheadline2">2. Requirements</a></li>
 <li><a href="#orgheadline3">3. Usage</a></li>
+<li><a href="#orgheadline4">4. Other tips and tricks</a></li>
 </ul>
 </div>
 </div>
@@ -16,13 +17,17 @@ into elisp files via something like
 
 `(org-babel-tangle-file "epython.org" "epython.el" "emacs-lisp")`
 
-or markdown files (e.g., for github README.md files) via
+(which yields `epython.el`), or markdown files (e.g., for github
+README.md files) via 
 
 `M-x org-md-export-to-markdown`
 
-to produce `epython.el`. One nice feature of writing elisp using
-org-babel is that it makes documentation and commentary a little
-easier.
+(which yields `epython.md`).
+
+One nice feature of writing elisp using org-babel is that it makes
+documentation and commentary a little easier. If you are going to
+contribute to epython, please edit the main epython.org file and not
+generated files like `README.md`.
 
 # Requirements<a id="orgheadline2"></a>
 
@@ -63,3 +68,16 @@ features of epython include:
     if __name__ == '__main__':
         doctest.testmod()
     ```
+
+# Other tips and tricks<a id="orgheadline4"></a>
+
+You may also find `company-mode` and `company-jedi` useful for
+auto-completion. Those are not python specific so they are not
+explicitly included here but you may wish to install them (e.g., via
+something like `M-x package-list-packages`) and then put something
+like
+
+    (global-company-mode 't)
+    (add-to-list 'company-backends 'company-jedi)
+
+somewhere in your emacs initialization files.
