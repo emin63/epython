@@ -1,13 +1,13 @@
 
 # Table of Contents
 
-1.  [Introduction](#org6e9776f)
-2.  [Requirements](#org891f900)
-3.  [Usage](#org444fc93)
-4.  [Other tips and tricks](#orgbd2566f)
+1.  [Introduction](#org3a000a2)
+2.  [Requirements](#org82e152c)
+3.  [Usage](#org1d05634)
+4.  [Other tips and tricks](#orgb9b0e56)
 
 
-<a id="org6e9776f"></a>
+<a id="org3a000a2"></a>
 
 # Introduction
 
@@ -31,7 +31,7 @@ contribute to epython, please edit the main epython.org file and not
 generated files like `README.md`.
 
 
-<a id="org891f900"></a>
+<a id="org82e152c"></a>
 
 # Requirements
 
@@ -39,7 +39,7 @@ You will need to install things like flycheck, etc., for everything to
 work properly.
 
 
-<a id="org444fc93"></a>
+<a id="org1d05634"></a>
 
 # Usage
 
@@ -51,7 +51,11 @@ This as an old file and some more documentation is needed but it is
 provided in the hope that it is still useful as is. Some useful
 features of epython include:
 
-1.  Typing `C-.` will push a doctest line from your python buffer
+1.  Typing `C-c v` in a python buffer will let you set
+    the `python-shell-virtualenv-root` variable. This will cause
+    flycheck to see checkers in your virtual env, have run-python
+    (which you can call via C-c r=) use your virtual env, and so on.
+2.  Typing `C-.` will push a doctest line from your python buffer
     into the the python interpreter. The easiest way to see this is
     to do the following:
     1.  Open a python file.
@@ -61,14 +65,14 @@ features of epython include:
     5.  Type `C-.`
     6.  Your doctest line should get pushed into the python buffer. By
         repeating this, you can conveniently step through a doctest.
-2.  Typing `C-c c` when the point is at the start of a function
+3.  Typing `C-c c` when the point is at the start of a function
     definition will auto-generate a comment string for that function.
-3.  Typing `C-c y` when in a python interpreter will start the pdb
+4.  Typing `C-c y` when in a python interpreter will start the pdb
     debugger in post-mortem mode to debug the most recent exception.
-4.  Typing `C-c e` in the python buffer with the point on the start
+5.  Typing `C-c e` in the python buffer with the point on the start
     of a doctest failure will generate an ediff showing the doctest
     mismatch.
-5.  Typing `C-c p` will push the current buffer to python. This is
+6.  Typing `C-c p` will push the current buffer to python. This is
     useful to evaluate the buffer if it is set to run doctests with
     a line like
 
@@ -78,7 +82,7 @@ features of epython include:
     ```
 
 
-<a id="orgbd2566f"></a>
+<a id="orgb9b0e56"></a>
 
 # Other tips and tricks
 

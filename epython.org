@@ -35,7 +35,11 @@ This as an old file and some more documentation is needed but it is
 provided in the hope that it is still useful as is. Some useful
 features of epython include:
 
-  1. Typing =C-.= will push a doctest line from your python buffer
+  1. Typing =C-c v= in a python buffer will let you set
+     the =python-shell-virtualenv-root= variable. This will cause
+     flycheck to see checkers in your virtual env, have run-python
+     (which you can call via C-c r=) use your virtual env, and so on.
+  2. Typing =C-.= will push a doctest line from your python buffer
      into the the python interpreter. The easiest way to see this is
      to do the following:
      1. Open a python file.
@@ -45,14 +49,14 @@ features of epython include:
      5. Type =C-.=
      6. Your doctest line should get pushed into the python buffer. By
         repeating this, you can conveniently step through a doctest.
-  2. Typing =C-c c= when the point is at the start of a function
+  3. Typing =C-c c= when the point is at the start of a function
      definition will auto-generate a comment string for that function.
-  3. Typing =C-c y= when in a python interpreter will start the pdb
+  4. Typing =C-c y= when in a python interpreter will start the pdb
      debugger in post-mortem mode to debug the most recent exception.
-  4. Typing =C-c e= in the python buffer with the point on the start
+  5. Typing =C-c e= in the python buffer with the point on the start
      of a doctest failure will generate an ediff showing the doctest
      mismatch.
-  5. Typing =C-c p= will push the current buffer to python. This is
+  6. Typing =C-c p= will push the current buffer to python. This is
      useful to evaluate the buffer if it is set to run doctests with
      a line like
 
@@ -131,6 +135,15 @@ somewhere in your emacs initialization files.
       (interactive "D")
       (setenv "PYTHONPATH" path))
 
+    (defun epy-set-vroot (path)
+      "Set python-shell-virtualenv-root to given path.
+
+       Settings this variable allows find-py-exe and other things to
+       find executables inside your virtual env.
+      "
+      (interactive "D")
+      (setq python-shell-virtualenv-root path))
+
     (defun epy-prepare-python-comment ()
       "Insert a preformatted comment header for function at point.
 
@@ -189,6 +202,7 @@ somewhere in your emacs initialization files.
 	(local-set-key "\C-c!" (if (eq system-type 'windows-nt)
 				   'run-python 'my-run-python))
 	(local-set-key "\C-cP" 'epy-set-go-py-buffer)
+	(local-set-key "\C-cv" 'epy-set-vroot)
 	(local-set-key "\C-c\C-p" 'epy-set-pythonpath)
 	(local-set-key "\C-ci" 'epy-log-info) 
 	(local-set-key "\C-cg" 'epy-get-paths)
