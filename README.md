@@ -1,16 +1,15 @@
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#orgheadline1">1. Introduction</a></li>
-<li><a href="#orgheadline2">2. Requirements</a></li>
-<li><a href="#orgheadline3">3. Usage</a></li>
-<li><a href="#orgheadline4">4. Other tips and tricks</a></li>
-</ul>
-</div>
-</div>
 
-# Introduction<a id="orgheadline1"></a>
+# Table of Contents
+
+1.  [Introduction](#org6e9776f)
+2.  [Requirements](#org891f900)
+3.  [Usage](#org444fc93)
+4.  [Other tips and tricks](#orgbd2566f)
+
+
+<a id="org6e9776f"></a>
+
+# Introduction
 
 The epython package provides the [epython.org](https://github.com/emin63/epython/blob/master/epython.org) file to help in setting
 up some utilities for running python inside emacs. Org-babel files can
@@ -31,12 +30,18 @@ documentation and commentary a little easier. If you are going to
 contribute to epython, please edit the main epython.org file and not
 generated files like `README.md`.
 
-# Requirements<a id="orgheadline2"></a>
 
-You will need to install things like flymake and pyempt for this to
+<a id="org891f900"></a>
+
+# Requirements
+
+You will need to install things like flycheck, etc., for everything to
 work properly.
 
-# Usage<a id="orgheadline3"></a>
+
+<a id="org444fc93"></a>
+
+# Usage
 
 The main way to use `epython.org` is to place the `epython.org`
 somewhere and call `(org-babel-load-file "/path/to/epython.org")` in
@@ -51,7 +56,7 @@ features of epython include:
     to do the following:
     1.  Open a python file.
     2.  Type `C-x 1` to have only a single window open.
-    3.  Type `C-c !` to open a python interpreter in the other window.
+    3.  Type `C-c r` to open a python interpreter in the other window.
     4.  Put the point on a doctest line that starts with ">>>".
     5.  Type `C-.`
     6.  Your doctest line should get pushed into the python buffer. By
@@ -63,10 +68,7 @@ features of epython include:
 4.  Typing `C-c e` in the python buffer with the point on the start
     of a doctest failure will generate an ediff showing the doctest
     mismatch.
-5.  When flymake is running, using `C-c j` and `C-c k` will go to the
-    previous/next flymake failure while `C-c l` will display what
-    flymake finds objectionable on the current line.
-6.  Typing `C-c p` will push the current buffer to python. This is
+5.  Typing `C-c p` will push the current buffer to python. This is
     useful to evaluate the buffer if it is set to run doctests with
     a line like
 
@@ -75,15 +77,19 @@ features of epython include:
         doctest.testmod()
     ```
 
-# Other tips and tricks<a id="orgheadline4"></a>
+
+<a id="orgbd2566f"></a>
+
+# Other tips and tricks
 
 You may also find `company-mode` and `company-jedi` useful for
-auto-completion. Those are not python specific so they are not
-explicitly included here but you may wish to install them (e.g., via
-something like `M-x package-list-packages`) and then put something
-like
+auto-completion or you may find that they hang emacs. Those are not
+python specific so they are not explicitly included here but you may
+wish to install them (e.g., via something like `M-x
+package-list-packages`) and then put something like
 
     (global-company-mode 't)
     (add-to-list 'company-backends 'company-jedi)
 
 somewhere in your emacs initialization files.
+

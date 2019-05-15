@@ -22,7 +22,7 @@ generated files like =README.md=.
 
 * Requirements
 
-You will need to install things like flymake and pyempt for this to
+You will need to install things like flycheck, etc., for everything to
 work properly.
 
 * Usage
@@ -40,7 +40,7 @@ features of epython include:
      to do the following:
      1. Open a python file.
      2. Type =C-x 1= to have only a single window open.
-     3. Type =C-c != to open a python interpreter in the other window.
+     3. Type =C-c r= to open a python interpreter in the other window.
      4. Put the point on a doctest line that starts with ">>>".
      5. Type =C-.=
      6. Your doctest line should get pushed into the python buffer. By
@@ -52,10 +52,7 @@ features of epython include:
   4. Typing =C-c e= in the python buffer with the point on the start
      of a doctest failure will generate an ediff showing the doctest
      mismatch.
-  5. When flymake is running, using =C-c j= and =C-c k= will go to the
-     previous/next flymake failure while =C-c l= will display what
-     flymake finds objectionable on the current line.
-  6. Typing =C-c p= will push the current buffer to python. This is
+  5. Typing =C-c p= will push the current buffer to python. This is
      useful to evaluate the buffer if it is set to run doctests with
      a line like
 
@@ -69,10 +66,10 @@ features of epython include:
 * Other tips and tricks
 
 You may also find =company-mode= and =company-jedi= useful for
-auto-completion. Those are not python specific so they are not
-explicitly included here but you may wish to install them (e.g., via
-something like =M-x package-list-packages=) and then put something
-like
+auto-completion or you may find that they hang emacs. Those are not
+python specific so they are not explicitly included here but you may
+wish to install them (e.g., via something like =M-x
+package-list-packages=) and then put something like
 
 #+BEGIN_EXAMPLE
 (global-company-mode 't)
@@ -91,7 +88,7 @@ somewhere in your emacs initialization files.
     ;; Keywords:     python languages oop
     ;; See github site at https://github.com/emin63/epython
 
-    (defconst epy-version "1.0"
+    (defconst epy-version "1.1"
       "Current version of epython.el.")
 
     ;; This software is provided as-is, without express or implied
@@ -126,7 +123,7 @@ somewhere in your emacs initialization files.
        when checking modules. For example, if a module you want to 
        check has a line like 
 
-         from foo import bar
+	 from foo import bar
 
        you should set the PYTHONPATH to the directory that is the parent
        of foo.
@@ -143,82 +140,77 @@ somewhere in your emacs initialization files.
       "
       (interactive)
       (save-restriction
-        (push-mark (point)) (end-of-line) (setq line-end (point)) ; store line-end
-        (goto-char (mark)) ; go back to where we started
-        (search-forward "def " line-end) ; find function only if it is on this line
-        (set-mark (point)) ; set the mark to where the function def starts
-        (search-forward "(")
-        (setq funcName (buffer-substring-no-properties (mark) (point)))
-        (set-mark (point))
-        (search-forward "):")
-        (backward-char 2)    
-        (setq args (buffer-substring-no-properties (mark) (point)))
-        (end-of-line) 
-        (insert (format "\n        \"\"\"\n\n" ))
-        (set-mark (point))
-        (setq argList (split-string (string-strip args) ","))
-        (mapcar (lambda (argName) (if (string-match "^self:?$" argName) nil
-                  (insert (format "        :arg %s:        \n\n" argName)))) 
-                argList)
-        (insert (format "        %s\n\n        :returns:\n\n"
-                        "~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-"))
-        (insert (format "        %s\n\n        PURPOSE:\n\n    \"\"\"" 
-                        "~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-"))
-        (next-line 1)
-        (push-mark (point))
-        (search-backward "\"\"\"")
-        (search-backward "\"\"\"")
-        (while (< (point) (mark))
-          (indent-for-tab-command)
-          (next-line 1))
-        (end-of-line)
-        (pop-mark)
-        (goto-char (mark))
-        (pop-mark)
-        )
+	(push-mark (point)) (end-of-line) (setq line-end (point)) ; store line-end
+	(goto-char (mark)) ; go back to where we started
+	(search-forward "def " line-end) ; find function only if it is on this line
+	(set-mark (point)) ; set the mark to where the function def starts
+	(search-forward "(")
+	(setq funcName (buffer-substring-no-properties (mark) (point)))
+	(set-mark (point))
+	(search-forward "):")
+	(backward-char 2)    
+	(setq args (buffer-substring-no-properties (mark) (point)))
+	(end-of-line) 
+	(insert (format "\n        \"\"\"\n\n" ))
+	(set-mark (point))
+	(setq argList (split-string (string-strip args) ","))
+	(mapcar (lambda (argName) (if (string-match "^self:?$" argName) nil
+		  (insert (format "        :param %s:        \n\n" argName)))) 
+		argList)
+	(insert (format "        %s\n\n        :return:\n\n"
+			"~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-"))
+	(insert (format "        %s\n\n        PURPOSE:\n\n    \"\"\"" 
+			"~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-"))
+	(next-line 1)
+	(push-mark (point))
+	(search-backward "\"\"\"")
+	(search-backward "\"\"\"")
+	(while (< (point) (mark))
+	  (indent-for-tab-command)
+	  (next-line 1))
+	(end-of-line)
+	(pop-mark)
+	(goto-char (mark))
+	(pop-mark)
+	)
     )
 
     (defun epy-setup-my-epython-style ()
       "Setup various keys for epython style"
       (progn
-        (setq-default py-split-windows-on-execute-function 
-          'split-window-horizontally)
-        (if epy-start-flymake-on-first-visit (flymake-mode))
-        (local-set-key "\C-cc" 'epy-prepare-python-comment)
-        (local-set-key "\C-c." 'epy-push-doctest-to-py)
-        (local-set-key "\C-cb" 'epy-import-buffer)
-        (local-set-key "\C-cp" 'epy-go-py)
-        (local-set-key "\C-c!" (if (eq system-type 'windows-nt)
-                                   'run-python 'my-run-python))
-        (local-set-key "\C-cP" 'epy-set-go-py-buffer)
-        (local-set-key "\C-c\C-p" 'epy-set-pythonpath)
-        (local-set-key "\C-cj" 'flymake-goto-prev-error)
-        (local-set-key "\C-ck" 'flymake-goto-next-error)
-        (local-set-key "\C-cl" 'flymake-display-err-menu-for-current-line)
-        (local-set-key "\C-ci" 'epy-log-info) 
-        (local-set-key "\C-cg" 'epy-get-paths)
-        (local-set-key "\C-cd" 'epy-import-db)
-        (local-set-key "\C-cq" 'epy-import-dq)
-        )
+	(setq-default py-split-windows-on-execute-function 
+	  'split-window-horizontally)
+
+	(local-set-key "\C-cc" 'epy-prepare-python-comment)
+	(local-set-key "\C-c." 'epy-push-doctest-to-py)
+	(local-set-key "\C-cb" 'epy-import-buffer)
+	(local-set-key "\C-cp" 'epy-go-py)
+	(local-set-key "\C-cr" 'run-python)
+	(local-set-key "\C-c!" (if (eq system-type 'windows-nt)
+				   'run-python 'my-run-python))
+	(local-set-key "\C-cP" 'epy-set-go-py-buffer)
+	(local-set-key "\C-c\C-p" 'epy-set-pythonpath)
+	(local-set-key "\C-ci" 'epy-log-info) 
+	(local-set-key "\C-cg" 'epy-get-paths)
+	(local-set-key "\C-cd" 'epy-import-db)
+	(local-set-key "\C-cq" 'epy-import-dq)
+	)
       )
 
     (defun epy-setup-py-shell-keys ()
       "Setup various keys for use in the python shell."
       (progn
-        (local-set-key "\C-cy" 'epy-pdb-pm)
-        (local-set-key "\C-ce" 'epy-analyze-doctest-failure)
-        (local-set-key "\C-cp" 'epy-go-py)
-        (local-set-key "\C-ci" 'epy-log-info) 
-        (local-set-key "\C-cg" 'epy-get-paths)
-        ))
+	(local-set-key "\C-cy" 'epy-pdb-pm)
+	(local-set-key "\C-ce" 'epy-analyze-doctest-failure)
+	(local-set-key "\C-cp" 'epy-go-py)
+	(local-set-key "\C-ci" 'epy-log-info) 
+	(local-set-key "\C-cg" 'epy-get-paths)
+	))
 
     (add-hook 'python-mode-hook 'epy-setup-my-epython-style)
     (add-hook 'py-shell-hook 'epy-setup-py-shell-keys)
     (add-hook 'inferior-python-mode-hook 'epy-setup-py-shell-keys)
     (add-hook 'py-python-shell-mode-hook 'epy-setup-py-shell-keys)
-
-    (defcustom epy-start-flymake-on-first-visit 1
-      "If true, then flymake is started whenever you load a new .py file")
 
     (defcustom epy-doctest-failure-delimiter 
       "^\\(-\\{70\\}\\)\\|\\(=\\{70\\}\\)\\|\\([*]\\{70\\}\\)"
@@ -250,32 +242,32 @@ somewhere in your emacs initialization files.
     "
       (interactive)
       (let ((comparison-frame nil))
-        (if (get-buffer epy-doctest-failure-got-buffer)
-            (kill-buffer (get-buffer epy-doctest-failure-got-buffer)))
-        (if (get-buffer epy-doctest-failure-exp-buffer)
-            (kill-buffer (get-buffer epy-doctest-failure-exp-buffer)))
-        (get-buffer-create epy-doctest-failure-exp-buffer)
-        (get-buffer-create epy-doctest-failure-got-buffer)
-        (epy-put-failed-doctest-into-buffers
-         epy-doctest-failure-exp-buffer epy-doctest-failure-got-buffer)
-        (make-frame '((name . "epy-doctest-failure-frame")))
-        (select-frame-by-name "epy-doctest-failure-frame")
-        (delete-other-windows)
-        (switch-to-buffer epy-doctest-failure-exp-buffer)
-        (split-window-vertically)
-        (next-window)
-        (switch-to-buffer epy-doctest-failure-got-buffer)
-        (ediff-buffers epy-doctest-failure-exp-buffer
-                       epy-doctest-failure-got-buffer)
-        )
+	(if (get-buffer epy-doctest-failure-got-buffer)
+	    (kill-buffer (get-buffer epy-doctest-failure-got-buffer)))
+	(if (get-buffer epy-doctest-failure-exp-buffer)
+	    (kill-buffer (get-buffer epy-doctest-failure-exp-buffer)))
+	(get-buffer-create epy-doctest-failure-exp-buffer)
+	(get-buffer-create epy-doctest-failure-got-buffer)
+	(epy-put-failed-doctest-into-buffers
+	 epy-doctest-failure-exp-buffer epy-doctest-failure-got-buffer)
+	(make-frame '((name . "epy-doctest-failure-frame")))
+	(select-frame-by-name "epy-doctest-failure-frame")
+	(delete-other-windows)
+	(switch-to-buffer epy-doctest-failure-exp-buffer)
+	(split-window-vertically)
+	(next-window)
+	(switch-to-buffer epy-doctest-failure-got-buffer)
+	(ediff-buffers epy-doctest-failure-exp-buffer
+		       epy-doctest-failure-got-buffer)
+	)
       )
 
     (defun epy-put-failed-doctest-into-buffers (expected-buffer got-buffer)
       "Helper function for epy-analyze-doctest-failure
 
     PRECONDITION: The point must be on line starting matching
-                  epy-doctest-failure-delimiter and starting 
-                  the desired doctest failure.
+		  epy-doctest-failure-delimiter and starting 
+		  the desired doctest failure.
 
     This function takes the name of ''expected result'' buffer 
     and a ''got result'' buffer. It then goes through the current buffer
@@ -283,39 +275,39 @@ somewhere in your emacs initialization files.
     components in each buffer.
     "
       (save-excursion
-        (let ((delimiter epy-doctest-failure-delimiter)
-              exp-piece got-piece)
-          (search-forward-regexp delimiter)
-          (next-line)
-          (move-beginning-of-line nil)
-          (search-forward-regexp "^Expected")
-          (next-line)
-          (move-beginning-of-line nil)
-          (push-mark)
-          (search-forward-regexp "^Got:")
-          (previous-line)
-          (move-end-of-line nil)
-          (setq exp-piece (buffer-substring (mark) (point)))
-          (with-current-buffer epy-doctest-failure-exp-buffer (insert exp-piece))
-          (next-line)
-          (next-line)
-          (move-beginning-of-line nil)
-          (pop-mark)
-          (push-mark)
-          (search-forward-regexp delimiter)
-          (previous-line)
-          (move-end-of-line nil)
-          (setq got-piece (buffer-substring (mark) (point)))
-          (with-current-buffer epy-doctest-failure-got-buffer (insert got-piece))
-          )
-        )
+	(let ((delimiter epy-doctest-failure-delimiter)
+	      exp-piece got-piece)
+	  (search-forward-regexp delimiter)
+	  (next-line)
+	  (move-beginning-of-line nil)
+	  (search-forward-regexp "^Expected")
+	  (next-line)
+	  (move-beginning-of-line nil)
+	  (push-mark)
+	  (search-forward-regexp "^Got:")
+	  (previous-line)
+	  (move-end-of-line nil)
+	  (setq exp-piece (buffer-substring (mark) (point)))
+	  (with-current-buffer epy-doctest-failure-exp-buffer (insert exp-piece))
+	  (next-line)
+	  (next-line)
+	  (move-beginning-of-line nil)
+	  (pop-mark)
+	  (push-mark)
+	  (search-forward-regexp delimiter)
+	  (previous-line)
+	  (move-end-of-line nil)
+	  (setq got-piece (buffer-substring (mark) (point)))
+	  (with-current-buffer epy-doctest-failure-got-buffer (insert got-piece))
+	  )
+	)
       )
 
     (defun epy-pdb-pm ()
       "Import pdb and invoke pdb.pm() to debug most recent python error in python shell"
       (interactive)
       (insert "import pdb; pdb.pm()")
-      (comint-send-input)
+      (comint-send-input nil 't)
     )
 
     (defun epy-log-info ()
@@ -335,14 +327,14 @@ somewhere in your emacs initialization files.
     "
       (interactive "ssrc dir (default is \"src\"): ")
       (let* ((srcDir (if (and srcDir (not (eq srcDir ""))) srcDir "src"))
-             (my-regexp (format "\\(.+\\)%s.*" srcDir))
-             (branchPath (replace-regexp-in-string my-regexp "\\1" 
-                                                  (buffer-file-name)))
-             (my-name (replace-regexp-in-string ".*/\\(\[^/\]+\\)/*$" "\\1" 
-                                                branchPath))
-             )
-        (insert (format "localBranchPath = '%s'; branchLocation = '%s'"
-                        branchPath my-name))))
+	     (my-regexp (format "\\(.+\\)%s.*" srcDir))
+	     (branchPath (replace-regexp-in-string my-regexp "\\1" 
+						  (buffer-file-name)))
+	     (my-name (replace-regexp-in-string ".*/\\(\[^/\]+\\)/*$" "\\1" 
+						branchPath))
+	     )
+	(insert (format "localBranchPath = '%s'; branchLocation = '%s'"
+			branchPath my-name))))
 
 
     (defun epy-set-go-py-buffer ()
@@ -363,38 +355,35 @@ somewhere in your emacs initialization files.
       "
       (interactive)
       (if (setq py-buffer (get-buffer "*Python*"))
-          (progn
-           (kill-buffer py-buffer) 
-           (while (or (get-process py-which-bufname) (get-process "Python<1>"))
-             (message "Waiting for python to die, please be patient")
-             (kill-process (get-process py-which-bufname)(get-process "Python<1>"))
-             (list-processes) ; this seems to be necessary to clear processes
-             (sleep-for 0 10)
-             )))
+	  (progn
+	   (kill-buffer py-buffer) 
+	   (while (or (get-process py-which-bufname) (get-process "Python<1>"))
+	     (message "Waiting for python to die, please be patient")
+	     (kill-process (get-process py-which-bufname)(get-process "Python<1>"))
+	     (list-processes) ; this seems to be necessary to clear processes
+	     (sleep-for 0 10)
+	     )))
       (if (setq my-py-buf (get-buffer my-main-py-buffer))
-          (switch-to-buffer my-py-buf) (error "Must set my-main-py-buffer first."))
+	  (switch-to-buffer my-py-buf) (error "Must set my-main-py-buffer first."))
       (delete-other-windows)
       (message "Starting python...")
       (setq runpy (python-shell-get-or-create-process
-                   (format "%s %s" (executable-find python-shell-interpreter)
-                           python-shell-interpreter-args)
-                   1 1))
+		   (format "%s %s" (executable-find python-shell-interpreter)
+			   python-shell-interpreter-args)
+		   1 1))
       (setq py-which-bufname (process-name runpy))
       (message (format "new python buffer is %s" py-which-bufname))
       (sit-for 0.1 t)
-      (other-window 1)
+      ;;(other-window 1) ;; used to need to switch windows but 
+      ;; newer emacs and python mode don't need that and just send the
+      ;; python buffer instead which gives a syntax error
       (while (not ;; We used to use get-process but does not work on newer python-mode
-              (or (get-buffer py-which-bufname) ;; so use get-buffer for python-mode
-                  (get-process py-which-bufname)) )
-        (message "Waiting for python to start")
-        (sleep-for 1)
-        )
-      (let ((start-flymake-on-visit epy-start-flymake-on-first-visit))
-        (unwind-protect ;; py-execute-buffer seems to die when flymake is on
-            (progn      ;; so temporarily turn it off while do py-execute-buffer
-              (setq epy-start-flymake-on-first-visit nil)
-              (python-shell-send-buffer 1))
-          (setq epy-start-flymake-on-first-visit start-flymake-on-visit)))
+	      (or (get-buffer py-which-bufname) ;; so use get-buffer for python-mode
+		  (get-process py-which-bufname)) )
+	(message "Waiting for python to start")
+	(sleep-for 1)
+	)
+       (python-shell-send-buffer 1)
       )
 
     (defun epy-push-doctest-to-py (numTimes) 
@@ -407,84 +396,37 @@ somewhere in your emacs initialization files.
       "
       (interactive "p")
       (while (> numTimes 0)
-        (beginning-of-line)
-        (re-search-forward "[>\.]")     
-        (forward-char 3)
-        (if (looking-at "^") ;; if looking at start of new line
-            (kill-new "") ;; empty area so just empty space for thing to push
-            (progn ;; otherwise grab the full line to push to python
-              (push-mark)
-              (end-of-line)     
-              (copy-region-as-kill (mark) (point)))
-            (pop-mark)
-            (next-line))
-        (beginning-of-line)
-        (other-window 1)
-        (yank)
-        (comint-send-input)
-        (other-window -1)
-        (setq numTimes (- numTimes 1))
-        )
+	(beginning-of-line)
+	(re-search-forward "[>\.]")     
+	(forward-char 3)
+	(if (looking-at "^") ;; if looking at start of new line
+	    (kill-new "") ;; empty area so just empty space for thing to push
+	    (progn ;; otherwise grab the full line to push to python
+	      (push-mark)
+	      (end-of-line)     
+	      (copy-region-as-kill (mark) (point)))
+	    (pop-mark)
+	    (next-line))
+	(beginning-of-line)
+	(other-window 1)
+	(yank)
+	(if (eq major-mode 'term-mode)
+	    (term-send-input) (comint-send-input nil 't))
+	(other-window -1)
+	(setq numTimes (- numTimes 1))
+	)
     )
 
     (defun epy-import-buffer ()
       "Push an import statement for the current buffer into python."
       (interactive)
       (let ((cmd (concat "from " (substring (buffer-name) 0 -3) " import *")))
-        (other-window 1)
-        (insert cmd)
-        (comint-send-input)
-        (other-window -1)
-        )
+	(other-window 1)
+	(insert cmd)
+	(comint-send-input nil 't)
+	(other-window -1)
+	)
       )
-
-    ;; Python stuff for outline mode based on python-magic
-
-    ; require outline-magic.el by CarstenDominik found here: 
-    ; http://www.astro.uva.nl/~dominik/Tools/outline-magic.el
-    ; modified code here by Nikwin slightly found here: 
-    ;  http://stackoverflow.com/questions/1085170/how-to-achieve-code-folding-effects-in-emacs/1085551#1085551
-
-    (add-hook 'outline-minor-mode-hook 
-               (lambda () 
-                 (require 'outline-magic)
-    ))
-    (add-hook 'python-mode-hook 'my-python-outline-hook)
-
-    (defun py-outline-level ()
-      (let (buffer-invisibility-spec)
-        (save-excursion
-          (skip-chars-forward "    ")
-          (current-column))))
-
-    (defun my-python-outline-hook ()
-      (setq py-outline-regexp 
-            "^\\([ \t]*\\)\\(def\\|class\\|if\\|elif\\|else\\|while\\|for\\|try\\|except\\|with\\|'''\\|# \\)")
-      (setq outline-regexp py-outline-regexp)
-      (setq outline-level 'py-outline-level)
-
-      (outline-minor-mode t)
-      ;;(hide-body) ;; make it so python files opened in hidden mode
-      ;;(show-paren-mode 1) ;; makes it so emacs always shows paren matching
-      (local-set-key [C-tab] 'outline-cycle)
-      (define-key outline-minor-mode-map [S-tab] 'indent-for-tab-command)
-      (define-key outline-minor-mode-map [M-down] 'outline-move-subtree-down)
-      (define-key outline-minor-mode-map [M-up] 'outline-move-subtree-up)
-    )
-    (setq my-flymake-prog "pyempt")
-
-
-  (when (load "flymake" t)
-    (defun flymake-pylint-init ()
-      (let* ((temp-file (flymake-init-create-temp-buffer-copy
-                         'flymake-create-temp-inplace))
-             (local-file (file-relative-name
-                          temp-file
-                          (file-name-directory buffer-file-name))))
-        (list my-flymake-prog (list local-file))))
-
-    (add-to-list 'flymake-allowed-file-name-masks
-                 '("\\.py\\'" flymake-pylint-init)))
 
   ;; Python stuff for outline mode based on python-magic
 
@@ -494,20 +436,20 @@ somewhere in your emacs initialization files.
   ;  http://stackoverflow.com/questions/1085170/how-to-achieve-code-folding-effects-in-emacs/1085551#1085551
 
   (add-hook 'outline-minor-mode-hook 
-             (lambda () 
-               (require 'outline-magic)
+	     (lambda () 
+	       (require 'outline-magic)
   ))
   (add-hook 'python-mode-hook 'my-python-outline-hook)
 
   (defun py-outline-level ()
     (let (buffer-invisibility-spec)
       (save-excursion
-        (skip-chars-forward "    ")
-        (current-column))))
+	(skip-chars-forward "    ")
+	(current-column))))
 
   (defun my-python-outline-hook ()
     (setq py-outline-regexp 
-          "^\\([ \t]*\\)\\(def\\|class\\|if\\|elif\\|else\\|while\\|for\\|try\\|except\\|with\\|'''\\|# \\)")
+	  "^\\([ \t]*\\)\\(def\\|class\\|if\\|elif\\|else\\|while\\|for\\|try\\|except\\|with\\|'''\\|# \\)")
     (setq outline-regexp py-outline-regexp)
     (setq outline-level 'py-outline-level)
 
@@ -521,4 +463,43 @@ somewhere in your emacs initialization files.
   )
 
   (provide 'python-magic)
+
+  ;; The following does some setup work for flycheck mode
+
+  (require 'flycheck)        ;; make sure flycheck installed
+  (global-flycheck-mode 't)  ;; turn on flycheck everywhere
+
+  (defun find-py-exe (exe)
+    "Look for EXE using the python-shell-virtualenv-root.
+
+  We first use python-shell-calculate-exec-path to get a version of the
+  exec path which uses python-shell-virtualenv-root and then use
+  the 'executable-find' in there.
+  "
+    (if (bound-and-true-p python-shell-virtualenv-root)
+	(let ((exec-path (python-shell-calculate-exec-path)))
+	  (executable-find exe))
+      (executable-find exe)))
+
+  (defun epy-setup-flycheck ()
+    "Setup flycheck to work properly with python.
+
+  A few important things we want to do in this function inculde:
+
+    1. Set the python interpreter correctly.
+       - We call find-py-exe which should use your python-shell-virtualenv-root.
+    2. Setup checkers to use
+       - We use find-py-exe to get checkers from your virtual env.
+       - Configure checkers wo we run first pylint then flake8.
+  "
+
+    (setq python-shell-interpreter (find-py-exe "python3"))
+    (flycheck-set-checker-executable 'python-pylint (find-py-exe "pylint"))
+    (setq flycheck-checker 'python-pylint)
+    (flycheck-set-checker-executable 'python-flake8 (find-py-exe "flake8"))
+    (flycheck-add-next-checker 'python-pylint 'python-flake8)
+    )
+
+  (add-hook 'python-mode-hook 'epy-setup-flycheck)
+
 #+end_src
