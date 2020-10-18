@@ -480,7 +480,7 @@ somewhere in your emacs initialization files.
 
   ;; The following does some setup work for flycheck mode
 
-  (require 'flycheck)        ;; make sure flycheck installed
+  (use-package flycheck :ensure t)        ;; make sure flycheck installed
   (global-flycheck-mode 't)  ;; turn on flycheck everywhere
 
   (defun find-py-exe (exe)
