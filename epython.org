@@ -508,10 +508,42 @@ somewhere in your emacs initialization files.
   "
 
     (setq python-shell-interpreter (find-py-exe "python3"))
+    (setq flycheck-checker 'python-flake8)
+    ;; Above we set set flake8 as the first checker in the chain.
+    ;; Usually flake8 will then call pylint so we do not want
+    ;; to explicitly add pylint as the next checker. But if for
+    ;; some reason flake8 was *NOT* chaining into pylint, then you do
+    ;;    (flycheck-add-next-checker 'python-pylint 'python-flake8)
+    ;; to give flycheck a hint.
     (flycheck-set-checker-executable 'python-pylint (find-py-exe "pylint"))
-    (setq flycheck-checker 'python-pylint)
     (flycheck-set-checker-executable 'python-flake8 (find-py-exe "flake8"))
-    (flycheck-add-next-checker 'python-pylint 'python-flake8)
+    )
+
+
+  (defun epy-setpytool (toolname mydir)
+    "Set the executable for the given TOOLNAME to MYDIR
+
+This is helpful in configuring executables to use inside emacs.
+For example, if you put a .dir-locals.el file with the following
+contents in your project directory, then it will auto-set tye
+flake8 and pylint executables when you visit a file under that
+directory:
+
+  ;; For python-mode set the flake8 and pylint executables to use
+  ;; the venv so that flycheck works correctly
+
+  ((python-mode . ((eval . (epy-setpytool "flake8" "par"))
+                  (eval . (epy-setpytool "pylint" "par"))
+		   ))
+  )
+
+This is helpful for flycheck."
+    (set
+     (make-local-variable
+      (intern (format "flycheck-python-%s-executable" toolname)))
+     (format "%s/%s/%s/venv_%s/bin/%s" (getenv "HOME") "code" mydir mydir
+  	   toolname)
+     )
     )
 
   (add-hook 'python-mode-hook 'epy-setup-flycheck)
