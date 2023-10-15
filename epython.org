@@ -495,6 +495,28 @@ somewhere in your emacs initialization files.
 	  (executable-find exe))
       (executable-find exe)))
 
+  (flycheck-define-checker python-ruff
+    "A Python syntax and style checker using the ruff utility.
+  To override the path to the ruff executable, set
+  `flycheck-python-ruff-executable'.
+  See URL `http://pypi.python.org/pypi/ruff'."
+    :command ("ruff"
+              "--format=text"
+              (eval (when buffer-file-name
+                      (concat "--stdin-filename=" buffer-file-name)))
+              "-")
+    :standard-input t
+    :error-filter (lambda (errors)
+                    (let ((errors (flycheck-sanitize-errors errors)))
+                      (seq-map #'flycheck-flake8-fix-error-level errors)))
+    :error-patterns
+    ((warning line-start
+              (file-name) ":" line ":" (optional column ":") " "
+              (id (one-or-more (any alpha)) (one-or-more digit)) " "
+              (message (one-or-more not-newline))
+              line-end))
+    :modes python-mode)
+
   (defun epy-setup-flycheck ()
     "Setup flycheck to work properly with python.
 
@@ -508,13 +530,16 @@ somewhere in your emacs initialization files.
   "
 
     (setq python-shell-interpreter (find-py-exe "python3"))
-    (setq flycheck-checker 'python-flake8)
-    ;; Above we set set flake8 as the first checker in the chain.
-    ;; Usually flake8 will then call pylint so we do not want
-    ;; to explicitly add pylint as the next checker. But if for
-    ;; some reason flake8 was *NOT* chaining into pylint, then you do
-    ;;    (flycheck-add-next-checker 'python-pylint 'python-flake8)
-    ;; to give flycheck a hint.
+
+    ;; Rough seems like a faster replacement for flake8 (but not pylint)
+    ;; so set that to be first instead of 'python-flake8
+
+    (setq first-python-checker 'python-ruff)
+    (setq flycheck-checker first-python-checker)
+    (flycheck-add-next-checker first-python-checker 'python-pylint)
+
+    ;; Make sure executables set right
+    (flycheck-set-checker-executable 'python-ruff (find-py-exe "ruff"))
     (flycheck-set-checker-executable 'python-pylint (find-py-exe "pylint"))
     (flycheck-set-checker-executable 'python-flake8 (find-py-exe "flake8"))
     )
