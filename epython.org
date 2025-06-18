@@ -501,7 +501,8 @@ somewhere in your emacs initialization files.
   `flycheck-python-ruff-executable'.
   See URL `http://pypi.python.org/pypi/ruff'."
     :command ("ruff"
-              "--format=text"
+              "check"
+              "--output-format=full"
               (eval (when buffer-file-name
                       (concat "--stdin-filename=" buffer-file-name)))
               "-")
@@ -515,7 +516,10 @@ somewhere in your emacs initialization files.
               (id (one-or-more (any alpha)) (one-or-more digit)) " "
               (message (one-or-more not-newline))
               line-end))
-    :modes python-mode)
+    :modes (python-mode python-ts-mode))
+    (add-to-list 'flycheck-checkers 'python-ruff)
+
+  (provide 'flycheck-ruff)
 
   (defun epy-setup-flycheck ()
     "Setup flycheck to work properly with python.
@@ -531,12 +535,10 @@ somewhere in your emacs initialization files.
 
     (setq python-shell-interpreter (find-py-exe "python3"))
 
-    ;; Rough seems like a faster replacement for flake8 (but not pylint)
-    ;; so set that to be first instead of 'python-flake8
-
-    (setq first-python-checker 'python-ruff)
+    (setq first-python-checker 'python-flake8)
     (setq flycheck-checker first-python-checker)
-    (flycheck-add-next-checker first-python-checker 'python-pylint)
+    (flycheck-add-next-checker first-python-checker 'python-ruff)
+
 
     ;; Make sure executables set right
     (flycheck-set-checker-executable 'python-ruff (find-py-exe "ruff"))
