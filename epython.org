@@ -502,20 +502,15 @@ somewhere in your emacs initialization files.
   See URL `http://pypi.python.org/pypi/ruff'."
     :command ("ruff"
               "check"
-              "--output-format=full"
+              "--output-format=concise"
               (eval (when buffer-file-name
                       (concat "--stdin-filename=" buffer-file-name)))
               "-")
     :standard-input t
-    :error-filter (lambda (errors)
-                    (let ((errors (flycheck-sanitize-errors errors)))
-                      (seq-map #'flycheck-flake8-fix-error-level errors)))
-    :error-patterns
-    ((warning line-start
-              (file-name) ":" line ":" (optional column ":") " "
-              (id (one-or-more (any alpha)) (one-or-more digit)) " "
-              (message (one-or-more not-newline))
-              line-end))
+    :error-patterns ((error line-start (file-name) ":" line ":" column ": " 
+               (id (one-or-more (not (any ":")))) " " (message) line-end)
+                     (warning line-start (file-name) ":" line ":" column ": "
+               (id (one-or-more (not (any ":")))) " " (message) line-end))
     :modes (python-mode python-ts-mode))
     (add-to-list 'flycheck-checkers 'python-ruff)
 
@@ -535,9 +530,10 @@ somewhere in your emacs initialization files.
 
     (setq python-shell-interpreter (find-py-exe "python3"))
 
-    (setq first-python-checker 'python-flake8)
+    (setq first-python-checker 'python-ruff) ;; fastest
     (setq flycheck-checker first-python-checker)
-    (flycheck-add-next-checker first-python-checker 'python-ruff)
+    (flycheck-add-next-checker first-python-checker 'python-flake8)
+    (flycheck-add-next-checker 'python-flake8 'python-pylint)
 
 
     ;; Make sure executables set right
